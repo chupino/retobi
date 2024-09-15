@@ -2,7 +2,7 @@ from dask.distributed import Client
 import dask.dataframe as dd
 
 # Reemplaza <IP_DEL_SCHEDULER> con la IP pública del nodo del scheduler
-client = Client('tcp://4.tcp.ngrok.io:19406')
+client = Client('tcp://4.tcp.ngrok.io:18249')
 
 # Verifica la conexión
 print(client)
