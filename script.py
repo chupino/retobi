@@ -5,7 +5,7 @@ import pandas as pd
 from io import StringIO
 import time
 
-client = Client('https://github.com/chupino/retobi.git')
+client = Client('tcp://0.tcp.ngrok.io:15644')
 print(client)
 
 url = 'https://raw.githubusercontent.com/chupino/retobi/main/u.data'
