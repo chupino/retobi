@@ -1,2 +1,4 @@
 dask[distributed]
 pandas
+requests
+aiohttp
