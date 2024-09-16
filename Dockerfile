@@ -4,4 +4,5 @@ run apt-get install vim -y
 workdir app
 copy . .
 run pip install -r requirements.txt
+entrypoint python script.py
 
