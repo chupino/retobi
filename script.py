@@ -1,24 +1,32 @@
 from dask.distributed import Client
 import dask.dataframe as dd
-import urllib.request
-import os
+import fsspec
+import pandas as pd
+from io import StringIO
+import time
 
-
-# Reemplaza <IP_DEL_SCHEDULER> con la IP pública del nodo del scheduler
-client = Client('tcp://8.tcp.ngrok.io:19538')
-
-# Verifica la conexión
+client = Client('https://github.com/chupino/retobi.git')
 print(client)
 
-# Define la URL del archivo y la ruta local para guardarlo
 url = 'https://raw.githubusercontent.com/chupino/retobi/main/u.data'
-local_filename = 'u.data'
 
-# Descargar el archivo
-urllib.request.urlretrieve(url, local_filename)
+fs = fsspec.filesystem('http')
+with fs.open(url) as file:
+    content = file.read()
+    content = content.decode('utf-8')
+    data = StringIO(content)
+    df_pandas = pd.read_csv(data, sep='\s+')
+    df = dd.from_pandas(df_pandas, npartitions=1)
 
-# Leer el archivo en un DataFrame de Dask
-df = dd.read_csv(local_filename, delim_whitespace=True)
-
-# Mostrar las primeras filas del DataFrame
 print(df.head())
+
+start_time = time.time()
+
+first_column_name = df.columns[0]
+mean_value = df[first_column_name].mean().compute()
+
+end_time = time.time()
+execution_time = end_time - start_time
+
+print(f"La media de la primera columna es: {mean_value}")
+print(f"Tiempo de ejecución: {execution_time} segundos")
