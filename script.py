@@ -3,15 +3,14 @@ import dask.dataframe as dd
 import aiohttp
 import asyncio
 from io import StringIO
+import pandas as pd
 
 async def fetch_file(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             try:
-                # Intentar decodificar en ISO-8859-1
                 content = await response.text(encoding='ISO-8859-1')
             except UnicodeDecodeError:
-                # Reemplazar caracteres no válidos si no se puede decodificar en ISO-8859-1
                 content = await response.text(encoding='utf-8', errors='replace')
             return content
 
@@ -45,39 +44,35 @@ def process_data():
     loop = asyncio.get_event_loop()
     ratings_content, users_content, movies_content = loop.run_until_complete(fetch_all_files())
 
-    # Leer datos usando Dask
-    ratings_df = dd.read_csv(
+    # Leer datos usando pandas
+    ratings_df = pd.read_csv(
         StringIO(ratings_content),
         sep='\s+',
         names=ratings_columns,
-        encoding='ISO-8859-1',
-        assume_missing=True
+        encoding='ISO-8859-1'
     )
 
-    users_df = dd.read_csv(
+    users_df = pd.read_csv(
         StringIO(users_content),
         sep='|',
         names=users_columns,
-        encoding='ISO-8859-1',
-        assume_missing=True
+        encoding='ISO-8859-1'
     )
 
-    movies_df = dd.read_csv(
+    movies_df = pd.read_csv(
         StringIO(movies_content),
         sep='|',
         names=genres_columns,
-        encoding='ISO-8859-1',
-        assume_missing=True
+        encoding='ISO-8859-1'
     )
 
-    # Repartir los DataFrames para aprovechar el clúster
-    num_partitions = 10
-    ratings_df = ratings_df.repartition(npartitions=num_partitions)
-    users_df = users_df.repartition(npartitions=num_partitions)
-    movies_df = movies_df.repartition(npartitions=num_partitions)
+    # Convertir DataFrames de pandas a dask
+    ratings_dd = dd.from_pandas(ratings_df, npartitions=10)
+    users_dd = dd.from_pandas(users_df, npartitions=10)
+    movies_dd = dd.from_pandas(movies_df, npartitions=10)
 
     # Unir DataFrames
-    merged_df = ratings_df.merge(users_df, on='user_id').merge(movies_df, left_on='item_id', right_on='movie_id')
+    merged_df = ratings_dd.merge(users_dd, on='user_id').merge(movies_dd, left_on='item_id', right_on='movie_id')
 
     # Agrupar por edad y calcular la preferencia de géneros
     genres = [
