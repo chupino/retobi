@@ -7,8 +7,8 @@ print(client)
 
 # URLs de los archivos
 ratings_url = 'https://raw.githubusercontent.com/chupino/retobi/main/u.data'
-users_url = 'https://raw.githubusercontent.com/chupino/retobi/main/users.data'
-movies_url = 'https://raw.githubusercontent.com/chupino/retobi/main/movies.data'
+users_url = 'https://raw.githubusercontent.com/chupino/retobi/main/u.user'
+movies_url = 'https://raw.githubusercontent.com/chupino/retobi/main/u.item'
 
 # Leer los archivos con Dask, especificando codificación y delimitadores
 ratings_df = dd.read_csv(
