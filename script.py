@@ -1,13 +1,18 @@
 from dask.distributed import Client
 import dask.dataframe as dd
-import fsspec
 import aiohttp
 import asyncio
+from io import StringIO
 
 async def fetch_file(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            content = await response.text()
+            try:
+                # Intentar decodificar en ISO-8859-1
+                content = await response.text(encoding='ISO-8859-1')
+            except UnicodeDecodeError:
+                # Reemplazar caracteres no válidos si no se puede decodificar en ISO-8859-1
+                content = await response.text(encoding='utf-8', errors='replace')
             return content
 
 async def fetch_all_files():
@@ -90,5 +95,3 @@ def process_data():
 
 # Ejecutar la función principal
 process_data()
-
-
