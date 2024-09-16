@@ -4,6 +4,7 @@ import aiohttp
 import asyncio
 from io import StringIO
 import pandas as pd
+import time
 
 async def fetch_file(url):
     async with aiohttp.ClientSession() as session:
@@ -27,6 +28,8 @@ async def fetch_all_files():
     return ratings_content, users_content, movies_content
 
 def process_data():
+    start_time = time.time()  # Iniciar el temporizador
+    
     client = Client('tcp://4.tcp.ngrok.io:13762')
     print(client)
 
@@ -87,6 +90,10 @@ def process_data():
         print(f"Edad: {age}")
         print(data)
         print("\n")
+
+    end_time = time.time()  # Finalizar el temporizador
+    elapsed_time = end_time - start_time
+    print(f"Tiempo de ejecución: {elapsed_time:.2f} segundos")
 
 # Ejecutar la función principal
 process_data()
